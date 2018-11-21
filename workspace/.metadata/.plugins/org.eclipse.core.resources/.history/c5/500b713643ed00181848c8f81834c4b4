@@ -1,0 +1,81 @@
+#include "sys/alt_stdio.h"
+#include "system.h"
+#include "altera_avalon_uart_regs.h"
+#include "io.h"
+#include <string.h>
+
+void delay(int a) { //bounce
+	volatile int i = 0;
+	while (i < a * 10000) {
+		i++;
+	}
+}
+
+void write(char * v) {
+	int i = 0;
+	while (v[i] != '\0') {
+		IOWR_ALTERA_AVALON_UART_TXDATA(RS232_BASE, v[i]);
+		delay(1);
+		i++;
+	}
+
+}
+
+void writeEsp(char * v) {
+	int i = 0;
+	while (v[i] != '\0') {
+		IOWR_ALTERA_AVALON_UART_TXDATA(ESP_BASE, v[i]);
+		//delay(1);
+		i++;
+	}
+
+}
+
+int main() {
+	//writeEsp("AT\n"); //Envia comando teste em serial
+	alt_putstr("AT\r\n");
+
+	/*while(1){
+		if(IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE)=='K'){
+			write("AT Ok\n");
+			break;
+		}else if(IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE)=='E'){
+			write("AT Error\n");
+			alt_putstr("AT\r\n");
+		}
+	}
+
+	alt_putstr("AT+CWMODE=3\r\n");
+
+	while(1){
+		if(IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE)=='K'){
+			write("Mode Ok\n");
+			break;
+		}else if(IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE)=='E'){
+			write("Mode Error\n");
+			alt_putstr("AT+CWMODE=3\r\n");
+		}
+	}
+
+	alt_putstr("AT+CWJAP = \"lima\",\"@senha363\"\r\n");
+
+	while(1){
+		if(IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE)=='K'){
+			write("Connect Ok\n");
+			break;
+		}else if(IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE)=='F'){
+			write("Connect Error\n");
+			alt_putstr("AT+CWMODE=3\r\n");
+		}
+	}*/
+
+	char a;
+	alt_putstr("AT+CWLAP\r\n");
+
+	do{
+		a = IORD_ALTERA_AVALON_UART_RXDATA(ESP_BASE);
+		if(a=='b') alt_putstr("AT+CWLAP\r\n");
+		IOWR_ALTERA_AVALON_UART_TXDATA(RS232_BASE, a);
+	}while(a!='K');
+
+}
